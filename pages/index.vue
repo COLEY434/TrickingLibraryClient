@@ -1,72 +1,107 @@
 <template>
   <div>
-    <v-file-input accept="video/*" @change="hanfleFile"></v-file-input>
+    <div class="text-center">
+      <logo />
+      <vuetify-logo />
+    </div>
+    <div v-if="tricks">
+      <div v-for="(t, index) in tricks" :key="index">
+        {{ t.name }}
+        <div>
+          <video
+            width="300"
+            controls
+            :src="`https://localhost:5001/api/videos/${t.video}`"
+          ></video>
+        </div>
+      </div>
+    </div>
 
-      <div class="text-center">
-        <logo />
-        <vuetify-logo />
-      </div>
-      <div v-if="tricks">
-        <p v-for="(t,index) in tricks" :key="index">
-          {{t.name}}
-        </p>
-      </div>
+    <v-stepper v-model="step">
+      <v-stepper-header>
+        <v-stepper-step :complete="step > 1" step="1"
+          >Upload Video</v-stepper-step
+        >
 
-      <div>
-        
-        <v-text-field label="Tricking name" v-model="trickName"></v-text-field>
-        <v-btn @click="saveTrick">Save Trick</v-btn>
-      </div>
-      
-          {{message}}
-          <v-btn @click="reset">Reset Message</v-btn>
-          <v-btn @click="resetTricks">Reset Tricks</v-btn>
-   </div>               
+        <v-divider></v-divider>
+
+        <v-stepper-step :complete="step > 2" step="2"
+          >Trick Information</v-stepper-step
+        >
+
+        <v-divider></v-divider>
+
+        <v-stepper-step step="3">Confirmation</v-stepper-step>
+      </v-stepper-header>
+
+      <v-stepper-items>
+        <v-stepper-content step="1">
+          <div>
+            <v-file-input accept="video/*" @change="hanfleFile"></v-file-input>
+          </div>
+        </v-stepper-content>
+
+        <v-stepper-content step="2">
+          <div>
+            <v-text-field
+              label="Tricking name"
+              v-model="trickName"
+            ></v-text-field>
+            <v-btn @click="saveTrick">Save Trick</v-btn>
+          </div>
+        </v-stepper-content>
+
+        <v-stepper-content step="3">
+          Success
+        </v-stepper-content>
+      </v-stepper-items>
+    </v-stepper>
+  </div>
 </template>
 
 <script>
-import {mapState,  mapActions, mapMutations} from 'vuex'
-import axios from "axios"
+import { mapState, mapActions, mapMutations } from "vuex";
 export default {
   data: () => ({
-    trickName: ''
+    trickName: "",
+    step: 1
   }),
   computed: {
-    ...mapState({
-    message: state => state.message
-    }),
-    ...mapState('tricks',{
-    tricks: state => state.tricks
-    })
+    ...mapState("tricks", ["tricks"]),
+    ...mapState("videos", ["uploadPromise"])
   },
 
   methods: {
-    ...mapMutations([
-    'reset'
-    ]),
-     ...mapMutations('tricks',{
-    resetTricks: 'reset'
-     }),
-    
-  ...mapActions('tricks', ['createTrick']),
-  async saveTrick(){
-    await this.createTrick({trick: {name: this.trickName}})
-    this.trickName = ""
-  },
-  async hanfleFile(file){
-    if(!file) return
+    ...mapMutations("videos", {
+      resetVideos: "reset"
+    }),
 
-    const form = new FormData()
-    form.append("video", file)
-    const result = await axios.post("https://localhost:5001/api/videos", form)
-    console.log("Results:", result)
+    ...mapActions("tricks", ["createTrick"]),
+    ...mapActions("videos", ["startVideoUpload"]),
+
+    async hanfleFile(file) {
+      if (!file) return;
+
+      const form = new FormData();
+      form.append("video", file);
+      this.startVideoUpload(form);
+      this.step++;
+    },
+    async saveTrick() {
+      if (!this.uploadPromise) {
+        console.log("Upload task is null");
+        return;
+      }
+      const video = await this.uploadPromise;
+      await this.createTrick({ trick: { name: this.trickName, video } });
+      this.trickName = "";
+      this.step++;
+      this.resetVideos();
+    }
+  },
+
+  async fetch() {
+    await this.$store.dispatch("nuxtServerInit");
   }
-  },
-    
-
-  async fetch(){
-    await this.$store.dispatch('nuxtServerInit')
- }
-  
-}
+};
 </script>
