@@ -1,3 +1,4 @@
+import { UPLOAD_TYPE } from "../data/enum";
 const initState = () => ({
   uploadPromise: null,
   active: false,
@@ -16,10 +17,17 @@ export const mutations = {
   },
   setType(state, type) {
     state.type = type;
-    state.step++;
+    if (type === UPLOAD_TYPE.TRICK) {
+      state.step++;
+    } else if (type === UPLOAD_TYPE.SUBMISSION) {
+      state.step += 2;
+    }
   },
   setTask(state, { uploadPromise }) {
     state.uploadPromise = uploadPromise;
+    state.step++;
+  },
+  incStep(state) {
     state.step++;
   },
   reset(state) {
@@ -31,8 +39,12 @@ export const actions = {
     const uploadPromise = this.$axios.$post("/api/videos", form);
     commit("setTask", { uploadPromise });
   },
-  async createTrick({ dispatch }, { trick }) {
-    await this.$axios.$post("/api/tricks", trick);
-    await dispatch("tricks/fetchTricks");
+  async createTrick({ state, dispatch }, { trick, submission }) {
+    if (state.type === UPLOAD_TYPE.TRICK) {
+      const createdTrick = await this.$axios.$post("/api/tricks", trick);
+      submission.trickId = createdTrick.id;
+    }
+
+    await this.$axios.$post("/api/submissions", submission);
   }
 };
