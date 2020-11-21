@@ -1,11 +1,11 @@
 import colors from "vuetify/es5/util/colors";
-
+//
 export default {
   /*
    ** Nuxt rendering mode
    ** See https://nuxtjs.org/api/configuration-mode
    */
-  mode: "universal",
+  //mode: "universal",
   /*
    ** Nuxt target
    ** See https://nuxtjs.org/api/configuration-target
@@ -59,7 +59,7 @@ export default {
    ** See https://axios.nuxtjs.org/options
    */
   axios: {
-    baseURL: "https://localhost:5001"
+    baseURL: "http://localhost:5000"
   },
   /*
    ** vuetify module configuration

@@ -8,5 +8,7 @@ export const mutations = {
   }
 };
 export const actions = {
-  async nuxtServerInit() {}
+  async nuxtServerInit({dispatch}) {
+    dispatch("tricks/fetchTricks")
+  }
 };

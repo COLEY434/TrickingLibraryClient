@@ -4,6 +4,7 @@ const initState = () => ({
 
 export const state = initState;
 
+
 export const mutations = {
   setSubmissions(state, { submissions }) {
     state.submissions = submissions;
@@ -18,5 +19,8 @@ export const actions = {
       `http://localhost:5000/api/Tricks/${trickId}/submissions`
     );
     commit("setSubmissions", { submissions });
+  },
+ createSubmissions({ state, dispatch }, { form }) { 
+    return this.$axios.$post("/api/submissions", form);
   }
 };

@@ -6,7 +6,7 @@
       <v-toolbar-title>Tricking Library</v-toolbar-title>
 
       <v-spacer></v-spacer>
-      <video-upload />
+     <content-creation-dailog></content-creation-dailog>
     </v-app-bar>
     <v-main>
       <nuxt />
@@ -15,13 +15,10 @@
 </template>
 
 <script>
-import VideoUpload from "../components/video-upload";
+import ContentCreationDailog from '../components/content-creation/content-creation-dialog.vue';
 export default {
   components: {
-    VideoUpload,
+    ContentCreationDailog,
   },
-  // async fetch() {
-  //   await this.$store.dispatch("nuxtServerInit");
-  // },
 };
 </script>
